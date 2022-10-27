@@ -9,6 +9,7 @@
         <v-card width="600px">
           <v-row align="center" class="ml-20">
             <input
+              style="width: 20px; height: 20px"
               type="checkbox"
               :checked="todo.checked"
               @change="
@@ -51,9 +52,26 @@
           >
             <v-icon>mdi-pencil</v-icon>
           </v-btn>
-          <v-btn @click="deleteTodo(todo.id)" color="error" class="mx-2 mb-3">
+          <v-btn
+            @click="confirmDeletion(todo.id)"
+            color="error"
+            class="mx-2 mb-3"
+          >
             <v-icon>mdi-delete</v-icon>
           </v-btn>
+          <v-dialog v-model="dialog" persistent max-width="290">
+            <v-card>
+              <v-card-title class="text-h5 text-center font-weight-bold my-2">
+                Confirm Deletion
+              </v-card-title>
+              <v-card-text>Are you sure to delete this task?</v-card-text>
+              <v-card-actions class="mx-3 my-2">
+                <v-spacer></v-spacer>
+                <v-btn @click="dialog = false" color="grey"> Cancel </v-btn>
+                <v-btn @click="deleteTodo" color="error"> Delete </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-card>
       </v-list>
     </div>
@@ -115,9 +133,26 @@
           >
             <v-icon>mdi-pencil</v-icon>
           </v-btn>
-          <v-btn @click="deleteTodo(todo.id)" color="error" class="mx-2 mb-3">
+          <v-btn
+            @click="confirmDeletion(todo.id)"
+            color="error"
+            class="mx-2 mb-3"
+          >
             <v-icon>mdi-delete</v-icon>
           </v-btn>
+          <v-dialog v-model="dialog" persistent max-width="290">
+            <v-card>
+              <v-card-title class="text-h5 text-center font-weight-bold my-2">
+                Confirm Deletion
+              </v-card-title>
+              <v-card-text>Are you sure to delete this task?</v-card-text>
+              <v-card-actions class="mx-3 my-2">
+                <v-spacer></v-spacer>
+                <v-btn @click="dialog = false" color="grey"> Cancel </v-btn>
+                <v-btn @click="deleteTodo" color="error"> Delete </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-card>
       </v-list>
     </div>
@@ -133,31 +168,36 @@ export default {
       todos: [],
       filteredTodos: [],
       filter: {},
+      dialog: false,
+      tempDeleteId: null,
     };
   },
 
   beforeMount() {
+    console.log("before mount");
     (async () => {
       this.todos = await TodoDataService.getAll();
     })();
   },
 
   activated() {
+    console.log("aactivated");
     (async () => {
       this.todos = await TodoDataService.getAll();
     })();
   },
 
   methods: {
-    deleteTodo(id) {
-      if (this.filtered) {
+    deleteTodo() {
+      this.dialog = false;
+      if (this.filter.status) {
         this.filteredTodos = this.filteredTodos.filter(
-          (todo) => todo.id !== id
+          (todo) => todo.id !== this.tempDeleteId
         );
       }
-      this.todos = this.todos.filter((todo) => todo.id !== id);
+      this.todos = this.todos.filter((todo) => todo.id !== this.tempDeleteId);
       (async () => {
-        await TodoDataService.delete(id);
+        await TodoDataService.delete(this.tempDeleteId);
       })();
     },
     filterCategory(category) {
@@ -176,6 +216,10 @@ export default {
       (async () => {
         await TodoDataService.update(todo.id, todo);
       })();
+    },
+    confirmDeletion(id) {
+      this.dialog = true;
+      this.tempDeleteId = id;
     },
   },
 };

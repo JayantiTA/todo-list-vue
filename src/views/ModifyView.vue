@@ -99,16 +99,14 @@ export default {
 
   methods: {
     save() {
-      this.$router.push("/");
-      if (this.$route.name === "edit") {
-        (async () => {
+      (async () => {
+        if (this.$route.name === "edit") {
           await TodoDataService.update(this.$route.params.id, this.todo);
-        })();
-      } else {
-        (async () => {
+        } else {
           await TodoDataService.create(this.todo);
-        })();
-      }
+        }
+        this.$router.push("/");
+      })();
     },
     cancel() {
       this.$router.push("/");
