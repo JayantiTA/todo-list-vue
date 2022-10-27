@@ -1,41 +1,87 @@
 <template>
   <div>
-    <p>Name:</p>
-    <input required v-model="todo.name" />
-    <div>
-      <div>
-        <input required v-model="category" />
-        <button @click="addCategory">Add Category</button>
-      </div>
-      categories:
-      <ul>
-        <!-- TODO: edit and remove category -->
-        <li v-for="category in todo.categories" :key="category">
-          {{ category }}
-          <button @click="deleteCategory(category)">delete</button>
-        </li>
-      </ul>
-      <!-- TODO: add category -->
-    </div>
-
-    <button v-if="edited" @click="cancel">cancel</button>
-    <button @click="save">Save</button>
+    <v-row justify="center">
+      <v-card width="550px">
+        <v-card-title primary-title> Remember Something To Do? </v-card-title>
+        <form @submit.prevent="save">
+          <v-text-field
+            v-model="todo.name"
+            label="Name"
+            required
+            class="ml-10 mr-10"
+          ></v-text-field>
+          <v-textarea
+            class="ml-10 mr-10"
+            name="description"
+            label="Description"
+          ></v-textarea>
+          <form @submit.prevent="addCategory">
+            <v-row>
+              <v-text-field
+                v-model="category"
+                label="Category"
+                required
+                class="ml-13"
+              ></v-text-field>
+              <v-btn type="submit" class="ml-2 mr-13 mt-3">+</v-btn>
+            </v-row>
+          </form>
+          <v-row class="mx-7">
+            <v-list v-for="category in todo.categories" :key="category">
+              <v-chip @click="deleteCategory(category)">
+                {{ category }}
+                <v-icon>mdi-close</v-icon>
+              </v-chip>
+            </v-list>
+          </v-row>
+          <v-btn v-if="edited" @click="cancel" class="mx-3">cancel</v-btn>
+          <v-btn
+            type="submit"
+            color="primary"
+            class="my-5"
+            :disabled="v$.todo.$invalid"
+            >Save</v-btn
+          >
+        </form>
+      </v-card>
+    </v-row>
   </div>
 </template>
 
 <script>
+import useVuelidate from "@vuelidate/core";
+import { required, minLength } from "@vuelidate/validators";
 import TodoDataService from "../services/TodoDataService";
 
 export default {
+  setup() {
+    return { v$: useVuelidate() };
+  },
+
   data() {
     return {
       category: "",
       todo: {
         name: "",
+        description: "",
         categories: [],
         checked: false,
       },
       edited: false,
+    };
+  },
+
+  validations() {
+    return {
+      todo: {
+        name: {
+          required,
+        },
+        categories: {
+          required,
+          min: minLength(1),
+        },
+      },
     };
   },
 
