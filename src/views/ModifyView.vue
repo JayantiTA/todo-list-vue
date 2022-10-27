@@ -24,7 +24,9 @@
                 required
                 class="ml-13"
               ></v-text-field>
-              <v-btn type="submit" class="ml-2 mr-13 mt-3">+</v-btn>
+              <v-btn type="submit" class="ml-2 mr-13 mt-3">
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
             </v-row>
           </form>
           <v-row class="mx-7">
