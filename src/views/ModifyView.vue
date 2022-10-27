@@ -18,6 +18,7 @@
       <!-- TODO: add category -->
     </div>
 
+    <button v-if="edited" @click="cancel">cancel</button>
     <button @click="save">Save</button>
   </div>
 </template>
@@ -34,14 +35,18 @@ export default {
         categories: [],
         checked: false,
       },
+      edited: false,
     };
   },
 
   beforeMount() {
     if (this.$route.name === "edit") {
+      this.edited = true;
       (async () => {
         this.todo = await TodoDataService.get(this.$route.params.id);
       })();
+    } else {
+      this.edited = false;
     }
   },
 
@@ -58,8 +63,11 @@ export default {
         })();
       }
     },
+    cancel() {
+      this.$router.push("/");
+    },
     addCategory() {
-      this.todo.categories.push(this.category);
+      this.todo.categories.push(this.category.toLowerCase());
       this.category = "";
     },
     deleteCategory(category) {

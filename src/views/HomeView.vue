@@ -2,7 +2,15 @@
   <div>
     <div v-if="!filtered">
       <li v-for="todo in todos" :key="todo.id">
-        <input type="checkbox" id="checkbox" v-model="checked" />
+        <input
+          type="checkbox"
+          :checked="todo.checked"
+          @change="
+            (event) => {
+              changeStatus(todo, event.target.checked);
+            }
+          "
+        />
         {{ todo.name }}
         <p v-if="todo.checked">(selesai)</p>
         <ul>
@@ -30,7 +38,27 @@
     <div v-else>
       <button @click="resetFilter">reset filter</button>
       <li v-for="todo in filteredTodos" :key="todo.id">
+        <input
+          type="checkbox"
+          :checked="todo.checked"
+          @change="
+            (event) => {
+              changeStatus(todo, event.target.checked);
+            }
+          "
+        />
         {{ todo.name }}
+        <button
+          @click="
+            $router.push({
+              name: 'edit',
+              params: { id: todo.id },
+            })
+          "
+        >
+          edit
+        </button>
+        <button @click="deleteTodo(todo.id)">delete</button>
       </li>
     </div>
   </div>
@@ -51,11 +79,10 @@ export default {
   beforeMount() {
     (async () => {
       this.todos = await TodoDataService.getAll();
-      console.log(this.todos);
     })();
   },
 
-  updated() {
+  mounted() {
     (async () => {
       this.todos = await TodoDataService.getAll();
     })();
@@ -63,7 +90,12 @@ export default {
 
   methods: {
     deleteTodo(id) {
-      // TODO: delete todo from view
+      if (this.filtered) {
+        this.filteredTodos = this.filteredTodos.filter(
+          (todo) => todo.id !== id
+        );
+      }
+      this.todos = this.todos.filter((todo) => todo.id !== id);
       (async () => {
         await TodoDataService.delete(id);
       })();
@@ -76,6 +108,13 @@ export default {
     },
     resetFilter() {
       this.filtered = false;
+      this.filteredTodos = [];
+    },
+    changeStatus(todo) {
+      todo.checked = !todo.checked;
+      (async () => {
+        await TodoDataService.update(todo.id, todo);
+      })();
     },
   },
 };
