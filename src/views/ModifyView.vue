@@ -11,6 +11,7 @@
             class="ml-10 mr-10"
           ></v-text-field>
           <v-textarea
+            v-model="todo.description"
             class="ml-10 mr-10"
             name="description"
             label="Description"
