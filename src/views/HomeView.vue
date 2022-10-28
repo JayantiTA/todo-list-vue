@@ -101,14 +101,12 @@ export default {
   },
 
   beforeMount() {
-    console.log("before mount");
     (async () => {
       this.todos = await TodoDataService.getAll();
     })();
   },
 
   activated() {
-    console.log("aactivated");
     (async () => {
       this.todos = await TodoDataService.getAll();
     })();
